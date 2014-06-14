@@ -1,2 +1,4 @@
 nose>=1.3.0
 bottle>=0.12.0
+gevent>=1.0.0
+geventhttpclient>=1.1.0
