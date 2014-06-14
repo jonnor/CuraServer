@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CuraServer demo page</title>
+    <meta name="description" content="CuraServer lets you slice with Cura using a HTTP API">
+    <script src="static/main.js"></script>
+    <link rel="stylesheet" href="static/style.css">
+  </head>
+
+  <body>
+    <div id="main">
+      <form id="file-form" enctype="multipart/form-data" action="/slice" method="post">
+        <input id="file-select" type="file" />
+        <button id="upload-button" type="submit">Slice</button>
+      </form>
+      <p id="output"></p>
+      <a id="download-link" download="output.gcode"/ target="_blank">Download</a>
+    </div>
+  </body>
+</html>
