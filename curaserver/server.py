@@ -70,5 +70,8 @@ def slice():
     shutil.rmtree(workdir)
     return ret
 
-if __name__ == '__main__':
+def main():
     bottle.run(host='0.0.0.0', port=8888, server='gevent')
+
+if __name__ == '__main__':
+    main()
