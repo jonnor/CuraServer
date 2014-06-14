@@ -59,8 +59,11 @@ def postRequest(url, files=[], fields=[]):
     response = http.request('POST', url.request_uri, body=body, headers=headers)
     return response
 
-
 def getHeader(response, name):
     for header, value in response.headers:
         if header == name:
             return value
+
+def dataFile(name):
+    datadir = 'tests/data'
+    return open(os.path.join(datadir, name), 'r').read()

@@ -17,7 +17,7 @@ def testMissingStl():
     assert len(res['error']) > 10
 
 def testSliceInvalidStlFile():
-    files = [ ('stl', 'invalid.stl', open('invalid.stl', 'r').read()) ]
+    files = [ ('stl', 'invalid.stl', testtools.dataFile('invalid.stl')) ]
     response = testtools.postRequest(baseurl+'/slice', files)
 
     testtools.assertEqual(response.status_code, 400)
@@ -29,7 +29,7 @@ def testSliceInvalidStlFile():
 
 
 def testSliceSimpleAsciiStlFile():
-    files = [ ('stl', 'trivial_ascii.stl', open('trivial_ascii.stl', 'r').read()) ]
+    files = [ ('stl', 'trivial_ascii.stl', testtools.dataFile('trivial_ascii.stl')) ]
     response = testtools.postRequest(baseurl+'/slice', files)
 
     testtools.assertEqual(response.status_code, 200)
@@ -37,10 +37,9 @@ def testSliceSimpleAsciiStlFile():
     lines = r.split('\n')
     assert len(lines) > 1000
     assert lines[0].startswith('M109 T0')
-    open('trivial.out.gcode', 'w').write(r)
 
 def testSliceSimpleAsciiStlField():
-    fields = [ ('stl', open('trivial_ascii.stl', 'r').read()) ]
+    fields = [ ('stl', testtools.dataFile('trivial_ascii.stl')) ]
     response = testtools.postRequest(baseurl+'/slice', fields=fields)
 
     testtools.assertEqual(response.status_code, 200)
@@ -48,4 +47,3 @@ def testSliceSimpleAsciiStlField():
     lines = r.split('\n')
     assert len(lines) > 1000
     assert lines[0].startswith('M109 T0')
-    open('trivial.out.gcode', 'w').write(r)
