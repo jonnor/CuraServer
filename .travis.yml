@@ -1,7 +1,10 @@
 language: python
 python:
   - "2.7"
-
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install python-wxgtk2.8 python-opengl python-serial python-numpy
+    - URL='http://software.ultimaker.com/current/cura_14.06-debian_amd64.deb'; FILE=`mktemp`; wget "$URL" -qO $FILE && sudo dpkg -i $FILE; rm $FILE
 install:
     - pip install -r requirements.txt
 script:
