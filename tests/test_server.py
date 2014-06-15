@@ -9,7 +9,8 @@ server_process = None
 
 def setUp():
     global server_process
-    server_process = subprocess.Popen(["./cura-server.py"])
+    py = testtools.findPython()
+    server_process = subprocess.Popen([py, "cura-server.py"])
     time.sleep(1) # FIXME: racy, check stdout instead?
 
 def tearDown():
