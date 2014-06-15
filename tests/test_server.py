@@ -1,8 +1,19 @@
+import time
 import json
 import utils as testtools
+from gevent import subprocess
 
 ### Tests ###
 baseurl = 'http://localhost:8888'
+server_process = None
+
+def setUp():
+    global server_process
+    server_process = subprocess.Popen(["./cura-server.py"])
+    time.sleep(1) # FIXME: racy, check stdout instead?
+
+def tearDown():
+    server_process.kill()
 
 # TODO: automatically start/stop server
 def testMissingStl():
