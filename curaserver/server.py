@@ -13,20 +13,31 @@ import shutil
 # TODO: API for creating preview with WebGL
 # TODO: add authentication, like an API key
 
-cura_cmd = 'cura'
+class Slicer(object):
+    def slice(self, stl):
+        """return gcode"""
+        raise NotImplementedError
 
-def slice_file(workdir, stl):
-    out = os.path.join(workdir, "output.gcode")
-    args = [cura_cmd, '--slice']
-    #args += ['--ini', settingsfile]
-    args += ['--output', out, stl]
+class CliSlicer(Slicer):
+    cura_cmd = 'cura'
 
-    #print ' '.join(args)
-    try:
-        subprocess.check_call(args)
-    except Exception, e:
-        return None
-    return out
+    def __init__(self, workdir):
+        self._workdir = workdir
+
+    def slice(self, stl):
+        out = os.path.join(self._workdir, "output.gcode")
+        args = [self.cura_cmd, '--slice']
+        #args += ['--ini', settingsfile]
+        args += ['--output', out, stl]
+
+        #print ' '.join(args)
+        try:
+            subprocess.check_call(args)
+        except Exception, e:
+            return None
+
+        ret = open(out, 'r')
+        return ret
 
 # HTTP API
 @bottle.hook('after_request')
@@ -60,11 +71,9 @@ def slice():
     else:
         open(stlpath, "w").write(upload)
 
-    output = slice_file(workdir, stlpath)
-    ret = None
-    if output:
-        ret = open(output, 'r')
-    else:
+    slicer = CliSlicer(workdir)
+    ret = slicer.slice(stlpath)
+    if not ret:
         response.status = 400
         ret = {'error': 'Could not slice file'}
     shutil.rmtree(workdir)

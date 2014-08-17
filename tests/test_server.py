@@ -16,7 +16,6 @@ def setUp():
 def tearDown():
     server_process.kill()
 
-# TODO: automatically start/stop server
 def testMissingStl():
     files = []
     response = testtools.postRequest(baseurl+'/slice', files)
