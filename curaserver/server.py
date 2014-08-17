@@ -7,6 +7,7 @@ gevent.monkey.patch_all(subprocess=True);
 import sys, os
 import tempfile
 import shutil
+import json
 
 # TODO: allow to set Cura settings over HTTP
 # TODO: allow to rotate/scale over HTTP?
@@ -47,6 +48,10 @@ class ApiSlicer(Slicer):
         self._workdir = workdir
 
     def slice(self, stl):
+        r = self._slice(stl)
+        return None if not r else r.get('gcode')
+
+    def _slice(self, stl):
         if not self.cura_pydir in sys.path:
             sys.path.append(self.cura_pydir)
 
@@ -79,7 +84,8 @@ class ApiSlicer(Slicer):
 #        print result.getPrintTime()
 #        print result.getFilamentAmount()
         code = result.getGCode()
-        return code
+        polygons = result._polygons
+        return {'gcode': code, 'polygons': polygons }
 
 
 # HTTP API
@@ -122,7 +128,43 @@ def slice():
     shutil.rmtree(workdir)
     return ret
 
+# FIXME: stupid API, does rendering twice when you want both preview and code
+@bottle.route('/preview', method='POST')
+def preview():
+    request, response = bottle.request, bottle.response
+
+    upload = request.files.stl
+    if not upload:
+        upload = request.forms.stl
+    if not upload:
+        response.status = 400
+        return {'error': 'Missing "stl" field'}
+
+    workdir = tempfile.mkdtemp(prefix='cura-server')
+    stlpath = os.path.join(workdir, 'upload.stl')
+    if hasattr(upload, 'save'):
+        upload.save(stlpath)
+    else:
+        open(stlpath, "w").write(upload)
+
+    slicer = ApiSlicer(workdir)
+    ret = slicer._slice(stlpath)
+    if not ret:
+        response.status = 400
+        ret = {'error': 'Could not preview file'}
+    shutil.rmtree(workdir)
+    return ret
+
+class CustomJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Handle Numpy arrays for polygons from Cura
+        import numpy
+        if isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
 def main():
+    bottle.install(bottle.JSONPlugin(json_dumps=lambda s: json.dumps(s, cls=CustomJsonEncoder)))
     bottle.run(host='0.0.0.0', port=8888, server='gevent')
 
 if __name__ == '__main__':

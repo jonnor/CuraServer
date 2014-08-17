@@ -58,3 +58,15 @@ def testSliceSimpleAsciiStlField():
     lines = r.split('\n')
     assert len(lines) > 1000
     assert lines[0].startswith('M109 T0')
+
+
+def testPreviewSimpleAsciiStlField():
+    fields = [ ('stl', testtools.dataFile('trivial_ascii.stl')) ]
+    response = testtools.postRequest(baseurl+'/preview', fields=fields)
+
+    testtools.assertEqual(response.status_code, 200)
+    r = json.loads(response.read())
+    assert r['gcode'].startswith('M109 T0')
+    assert len(r['polygons']) == 198
+    assert r['polygons'][0].keys() == [u'openoutline', u'inset0', u'skirt', u'insetx', u'skin']
+
