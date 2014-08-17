@@ -48,12 +48,12 @@ function init() {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    document.getElementById('viewer').appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera);
     controls.addEventListener('change', render)
 
-    // TODO: set platform size based on settings
+    // TODO: set platform size based on printer settings
     var platformSizeX = 150;
     var platformSizeY = 150;
     var platformCenter = new THREE.Vector3(platformSizeX/2, platformSizeY/2, 0);
@@ -72,6 +72,10 @@ function init() {
 
     var req = new XMLHttpRequest();
     req.onload = function () {
+
+        document.getElementById('time').innerHTML = '28 minutes';
+        document.getElementById('filament').innerHTML = '0.48 meter 4 gram';
+
         var polygons = JSON.parse(this.responseText);
         obj = new THREE.Object3D();
         for (var i=0; i<polygons.length; i++) {
@@ -88,5 +92,6 @@ function init() {
     animate();
     render();
 }
-init();
+
+window.addEventListener('load', init, false);
 

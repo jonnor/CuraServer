@@ -80,12 +80,13 @@ class ApiSlicer(Slicer):
         result = engine.getResult()
         if not result.isFinished():
             return None
-#        print len(result._polygons), result._polygons[0]
-#        print result.getPrintTime()
-#        print result.getFilamentAmount()
-        code = result.getGCode()
-        polygons = result._polygons
-        return {'gcode': code, 'polygons': polygons }
+        ret = {
+            'gcode': result.getGCode(),
+            'polygons': result._polygons,
+            'filamentUse': result.getFilamentAmount(),
+            'printTime': result.getPrintTime(),
+        }
+        return ret
 
 
 # HTTP API

@@ -69,4 +69,6 @@ def testPreviewSimpleAsciiStlField():
     assert r['gcode'].startswith('M109 T0')
     assert len(r['polygons']) == 198
     assert r['polygons'][0].keys() == [u'openoutline', u'inset0', u'skirt', u'insetx', u'skin']
+    assert r['filamentUse'] == '0.48 meter 4 gram'
+    assert r['printTime'] == '28 minutes'
 
