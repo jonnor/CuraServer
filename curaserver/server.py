@@ -2,7 +2,7 @@ import gevent
 from gevent import subprocess
 import bottle
 import gevent.monkey
-gevent.monkey.patch_all();
+gevent.monkey.patch_all(subprocess=True);
 
 import sys, os
 import tempfile
@@ -39,6 +39,49 @@ class CliSlicer(Slicer):
         ret = open(out, 'r')
         return ret
 
+
+class ApiSlicer(Slicer):
+    cura_pydir = "/usr/share/cura" # FIXME: make cross-platform
+
+    def __init__(self, workdir):
+        self._workdir = workdir
+
+    def slice(self, stl):
+        if not self.cura_pydir in sys.path:
+            sys.path.append(self.cura_pydir)
+
+        import Cura
+        from Cura.util import sliceEngine
+        from Cura.util import objectScene
+        from Cura.util import meshLoader
+
+        def commandlineProgressCallback(progress):
+            if progress >= 0:
+                #print 'Preparing: %d%%' % (progress * 100)
+                pass
+
+        try:
+            scene = objectScene.Scene()
+            scene.updateMachineDimensions()
+            engine = sliceEngine.Engine(commandlineProgressCallback)
+            for m in meshLoader.loadMeshes(stl):
+                # typeof(m) == printableObjects
+                scene.add(m)
+            engine.runEngine(scene)
+            engine.wait()
+        except Exception, e:
+            return None
+
+        result = engine.getResult()
+        if not result.isFinished():
+            return None
+#        print len(result._polygons), result._polygons[0]
+#        print result.getPrintTime()
+#        print result.getFilamentAmount()
+        code = result.getGCode()
+        return code
+
+
 # HTTP API
 @bottle.hook('after_request')
 def enable_cors():
@@ -71,7 +114,7 @@ def slice():
     else:
         open(stlpath, "w").write(upload)
 
-    slicer = CliSlicer(workdir)
+    slicer = CliSlicer(workdir) if False else ApiSlicer(workdir)
     ret = slicer.slice(stlpath)
     if not ret:
         response.status = 400
