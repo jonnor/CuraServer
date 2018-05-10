@@ -12,11 +12,14 @@ Instead use [OctoPrint](https://github.com/foosel/OctoPrint) for that.
 
 Status
 -------
-Has a trivial API: POST /slice, allows to slice provided STL file, using the computer-wide settings for Cura.
+**UNMAINTAINED DEMO**.
 
-Milestones
------------
-0.1.0: API for customizing slicer settings, 3d-model preview and estimated time+resource use. Authentication for API.
+* Not updated since 2014
+* No API authentication
+* Probably broken with newer Cura/CuraEngine versions
+
+Use the code however you see fit.
+If you want help to build a web-enabled 3d-printer slicer, I am available for consulting.
 
 Install & Run
 --------
@@ -33,6 +36,12 @@ Run
     python2 cura-server.py
 
 Open http://localhost:8888 to see the trivial API demo
+
+Api
+----
+
+    POST /slice
+        Slice provided STL file, using the computer-wide settings for Cura.
 
 License
 -------
